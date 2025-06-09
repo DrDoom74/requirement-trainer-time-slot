@@ -21,10 +21,14 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound 
       // Получаем позицию для кнопки
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
-      setButtonPosition({
-        x: rect.left + rect.width / 2,
-        y: rect.top - 50
-      });
+      const sectionRect = sectionRef.current?.getBoundingClientRect();
+      
+      if (sectionRect) {
+        setButtonPosition({
+          x: rect.left + rect.width / 2 - sectionRect.left,
+          y: rect.top - sectionRect.top - 50
+        });
+      }
       setShowButton(true);
     } else {
       setShowButton(false);
@@ -68,7 +72,7 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound 
   };
 
   return (
-    <div className="space-y-6" ref={sectionRef}>
+    <div className="space-y-6 relative" ref={sectionRef}>
       <h2 className="text-2xl font-bold text-primary">Требования</h2>
       
       {/* Business Requirements */}
@@ -122,10 +126,10 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound 
       {/* Floating Button */}
       {showButton && (
         <div
-          className="fixed z-50 pointer-events-none"
+          className="absolute z-50 pointer-events-none"
           style={{
             left: buttonPosition.x - 75,
-            top: buttonPosition.y + window.scrollY
+            top: buttonPosition.y
           }}
         >
           <Button

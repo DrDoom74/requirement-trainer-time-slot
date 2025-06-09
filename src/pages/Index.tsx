@@ -61,9 +61,28 @@ const Index = () => {
   const [foundErrors, setFoundErrors] = useState<FoundError[]>([]);
 
   const handleErrorFound = useCallback((selectedText: string) => {
-    const matchedError = VALID_ERRORS.find(error => 
-      error.text === selectedText.trim()
+    const trimmedText = selectedText.trim();
+    
+    // Ищем точное совпадение основного текста ошибки
+    let matchedError = VALID_ERRORS.find(error => 
+      error.text === trimmedText
     );
+    
+    // Если не найдено точное совпадение, проверяем содержится ли основной текст в выделении
+    if (!matchedError) {
+      matchedError = VALID_ERRORS.find(error => 
+        trimmedText.includes(error.text)
+      );
+    }
+    
+    // Проверяем выделение по номеру пункта (например, "1.3", "2.6")
+    if (!matchedError) {
+      const numberMatch = trimmedText.match(/^(\d\.\d)/);
+      if (numberMatch) {
+        const number = numberMatch[1];
+        matchedError = VALID_ERRORS.find(error => error.id === number);
+      }
+    }
     
     if (matchedError && !foundErrors.find(err => err.id === matchedError.id)) {
       setFoundErrors(prev => [...prev, matchedError]);
