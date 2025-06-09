@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import RequirementsSection from '../components/RequirementsSection';
 import ImplementationSection from '../components/ImplementationSection';
@@ -115,9 +114,8 @@ const Index = () => {
               Сбросить прогресс
             </Button>
             <Button 
-              variant="outline" 
+              variant="secondary"
               asChild
-              className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
             >
               <a href="https://boosty.to/aklimenko" target="_blank" rel="noopener noreferrer">
                 Ответы
