@@ -10,29 +10,40 @@ interface BookingSlot {
   available: boolean;
 }
 
+interface Booking {
+  email: string;
+  name: string;
+  date: string;
+  time: string;
+}
+
 const ImplementationSection: React.FC = () => {
   const [selectedSlot, setSelectedSlot] = useState<BookingSlot | null>(null);
   const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [bookedSlots, setBookedSlots] = useState<Set<string>>(new Set());
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [showDuplicateError, setShowDuplicateError] = useState(false);
   const [bookingMessage, setBookingMessage] = useState('');
 
-  // Генерируем слоты на 7 дней вперёд
+  // Генерируем слоты на 5 дней вперёд
   const generateSlots = (): BookingSlot[] => {
     const slots: BookingSlot[] = [];
     const today = new Date();
     
-    for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+    for (let dayOffset = 0; dayOffset < 5; dayOffset++) {
       const date = new Date(today);
       date.setDate(today.getDate() + dayOffset);
       
-      // Пропускаем выходные (проблема: не указано в требованиях точно)
+      // Пропускаем выходные
       if (date.getDay() === 0 || date.getDay() === 6) continue;
       
       const dateStr = date.toLocaleDateString('ru-RU');
       
-      // Генерируем временные слоты (проблема: без указания таймзоны)
-      const times = ['10:00', '11:00', '14:00', '15:00', '16:00'];
+      // Генерируем временные слоты 10:00-16:00
+      const times = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
       
       times.forEach(time => {
         const slotKey = `${dateStr}-${time}`;
@@ -49,30 +60,80 @@ const ImplementationSection: React.FC = () => {
 
   const slots = generateSlots();
 
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value;
+    setUserEmail(email);
+    
+    if (email && !validateEmail(email)) {
+      setEmailError('Введите корректный email');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const checkDuplicateBooking = (email: string, date: string): boolean => {
+    return bookings.some(booking => 
+      booking.email === email && booking.date === date
+    );
+  };
+
   const handleSlotClick = (slot: BookingSlot) => {
     if (!slot.available) return;
     
     setSelectedSlot(slot);
     setShowBookingForm(true);
+    setShowDuplicateError(false);
     setBookingMessage('');
+    setEmailError('');
   };
 
   const handleBooking = () => {
-    if (!selectedSlot || !userName.trim()) return;
+    if (!selectedSlot || !userName.trim() || !userEmail.trim() || emailError) return;
+    
+    // Проверяем дубликат бронирования
+    if (checkDuplicateBooking(userEmail, selectedSlot.date)) {
+      setShowDuplicateError(true);
+      return;
+    }
     
     const slotKey = `${selectedSlot.date}-${selectedSlot.time}`;
     setBookedSlots(prev => new Set([...prev, slotKey]));
+    
+    const newBooking: Booking = {
+      email: userEmail,
+      name: userName,
+      date: selectedSlot.date,
+      time: selectedSlot.time
+    };
+    setBookings(prev => [...prev, newBooking]);
+    
     setBookingMessage('Встреча успешно забронирована');
     setShowBookingForm(false);
     setSelectedSlot(null);
     setUserName('');
+    setUserEmail('');
+    
+    // Убираем сообщение через 3 секунды
+    setTimeout(() => {
+      setBookingMessage('');
+    }, 3000);
   };
 
   const cancelBooking = () => {
     setShowBookingForm(false);
+    setShowDuplicateError(false);
     setSelectedSlot(null);
     setUserName('');
+    setUserEmail('');
+    setEmailError('');
   };
+
+  const isFormValid = userName.trim() && userEmail.trim() && !emailError;
 
   // Группируем слоты по датам
   const slotsByDate = slots.reduce((acc, slot) => {
@@ -148,10 +209,27 @@ const ImplementationSection: React.FC = () => {
               />
             </div>
 
+            <div className="mb-4">
+              <label htmlFor="userEmail" className="block text-sm font-medium mb-2">
+                Email
+              </label>
+              <Input
+                id="userEmail"
+                type="email"
+                value={userEmail}
+                onChange={handleEmailChange}
+                placeholder="Введите ваш email"
+                className={emailError ? 'border-red-500' : ''}
+              />
+              {emailError && (
+                <p className="text-red-500 text-sm mt-1">{emailError}</p>
+              )}
+            </div>
+
             <div className="flex gap-3">
               <Button
                 onClick={handleBooking}
-                disabled={!userName.trim()}
+                disabled={!isFormValid}
                 className="flex-1 bg-green-600 hover:bg-green-700 text-white"
               >
                 Забронировать
@@ -168,13 +246,29 @@ const ImplementationSection: React.FC = () => {
         </div>
       )}
 
+      {/* Duplicate Booking Error Modal */}
+      {showDuplicateError && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-card p-6 rounded-lg shadow-lg border max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4 text-red-600">Ошибка</h3>
+            <p className="text-sm mb-4">Вы уже записаны на сегодня</p>
+            <Button
+              onClick={() => setShowDuplicateError(false)}
+              className="w-full"
+            >
+              Закрыть
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Implementation Issues Note */}
       <div className="mt-6 p-4 bg-orange-50 border border-orange-200 rounded-lg">
         <h4 className="font-medium text-orange-800 mb-2">💡 Попробуйте протестировать:</h4>
         <ul className="text-sm text-orange-700 space-y-1">
-          <li>• Можете ли вы отменить забронированную встречу?</li>
-          <li>• Указана ли таймзона для времени встреч?</li>
-          <li>• Все ли требования выполняются корректно?</li>
+          <li>• Попробуйте забронировать слот с некорректным email</li>
+          <li>• Попробуйте дважды забронировать в один день с одним email</li>
+          <li>• Проверьте, становятся ли слоты недоступными после бронирования</li>
         </ul>
       </div>
     </div>
