@@ -1,49 +1,17 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Button } from './ui/button';
 
 interface RequirementsSectionProps {
-  onErrorFound: (selectedText: string) => boolean;
+  onErrorFound: (requirementId: string) => boolean;
 }
 
 const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound }) => {
-  const [selectedText, setSelectedText] = useState('');
+  const [hoveredNumber, setHoveredNumber] = useState<string | null>(null);
+  const [clickedNumber, setClickedNumber] = useState<string | null>(null);
   const [showButton, setShowButton] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  const handleTextSelection = () => {
-    const selection = window.getSelection();
-    if (selection && selection.toString().trim()) {
-      const selectedStr = selection.toString().trim();
-      setSelectedText(selectedStr);
-      
-      // Получаем позицию для кнопки
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-      const sectionRect = sectionRef.current?.getBoundingClientRect();
-      
-      if (sectionRect) {
-        setButtonPosition({
-          x: rect.left + rect.width / 2 - sectionRect.left,
-          y: rect.top - sectionRect.top - 50
-        });
-      }
-      setShowButton(true);
-    } else {
-      setShowButton(false);
-    }
-  };
-
-  const handleMarkError = () => {
-    const success = onErrorFound(selectedText);
-    if (success) {
-      // Очищаем выделение при успехе
-      window.getSelection()?.removeAllRanges();
-    }
-    setShowButton(false);
-    setSelectedText('');
-  };
+  const [processedNumbers, setProcessedNumbers] = useState<Set<string>>(new Set());
 
   const requirements = {
     business: [
@@ -67,27 +35,85 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound 
       "3.2. Временные слоты отображаются интерактивными кнопками с временем (напр. «10:00»).",
       "3.3. Цвет кнопки «Забронировать» должен соответствовать общепринятому стилю.",
       "3.4. После успешного бронирования должно появиться уведомление не менее чем на 3 секунды с текстом «Встреча успешно забронирована».",
-      "3.5. Поле ввода имени обязательно к заполнению до отправки формы."
+      "3.5. Поле ввода имени обязательно к заполнению до отправки формы.",
+      "3.6. После бронирования временного слота соответствующая кнопка с указанием времени должна становиться неактивной (disabled), визуально отличаться от доступных слотов и не реагировать на нажатия."
     ]
   };
 
+  const extractRequirementNumber = (req: string) => {
+    const match = req.match(/^(\d\.\d)/);
+    return match ? match[1] : '';
+  };
+
+  const getNumberBackgroundColor = (number: string) => {
+    if (processedNumbers.has(number)) {
+      const isError = onErrorFound(number);
+      return isError ? 'bg-green-200' : 'bg-gray-300';
+    }
+    if (hoveredNumber === number) {
+      return 'bg-red-100';
+    }
+    return '';
+  };
+
+  const handleNumberClick = (event: React.MouseEvent, requirement: string) => {
+    const number = extractRequirementNumber(requirement);
+    
+    if (processedNumbers.has(number)) {
+      return; // Уже обработан
+    }
+
+    setClickedNumber(number);
+    
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+    setButtonPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.bottom + 10
+    });
+    setShowButton(true);
+  };
+
+  const handleMarkAsError = () => {
+    if (!clickedNumber) return;
+    
+    const success = onErrorFound(clickedNumber);
+    setProcessedNumbers(prev => new Set(prev).add(clickedNumber));
+    
+    setShowButton(false);
+    setClickedNumber(null);
+  };
+
+  const renderRequirement = (req: string, index: number) => {
+    const number = extractRequirementNumber(req);
+    const text = req.substring(number.length + 1); // Убираем номер и точку
+    const isProcessed = processedNumbers.has(number);
+
+    return (
+      <p key={index} className="text-card-foreground leading-relaxed text-sm md:text-base">
+        <span
+          className={`inline-block cursor-pointer px-1 py-0.5 rounded transition-colors ${
+            isProcessed ? 'cursor-default' : 'hover:bg-red-100'
+          } ${getNumberBackgroundColor(number)}`}
+          onMouseEnter={() => !isProcessed && setHoveredNumber(number)}
+          onMouseLeave={() => setHoveredNumber(null)}
+          onClick={(e) => handleNumberClick(e, req)}
+        >
+          {number}.
+        </span>
+        {text}
+      </p>
+    );
+  };
+
   return (
-    <div className="space-y-4 md:space-y-6 relative" ref={sectionRef}>
+    <div className="space-y-4 md:space-y-6 relative">
       <h2 className="text-xl md:text-2xl font-bold text-primary">Требования</h2>
       
       {/* Business Requirements */}
       <div className="bg-card p-4 md:p-6 rounded-lg shadow-sm border">
         <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-primary">1. Бизнес-требования</h3>
         <div className="space-y-2 md:space-y-3">
-          {requirements.business.map((req, index) => (
-            <p 
-              key={index} 
-              className="text-card-foreground leading-relaxed cursor-text text-sm md:text-base"
-              onMouseUp={handleTextSelection}
-            >
-              {req}
-            </p>
-          ))}
+          {requirements.business.map((req, index) => renderRequirement(req, index))}
         </div>
       </div>
 
@@ -95,15 +121,7 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound 
       <div className="bg-card p-4 md:p-6 rounded-lg shadow-sm border">
         <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-primary">2. Функциональные требования</h3>
         <div className="space-y-2 md:space-y-3">
-          {requirements.functional.map((req, index) => (
-            <p 
-              key={index} 
-              className="text-card-foreground leading-relaxed cursor-text text-sm md:text-base"
-              onMouseUp={handleTextSelection}
-            >
-              {req}
-            </p>
-          ))}
+          {requirements.functional.map((req, index) => renderRequirement(req, index))}
         </div>
       </div>
 
@@ -111,33 +129,25 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound 
       <div className="bg-card p-4 md:p-6 rounded-lg shadow-sm border">
         <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-primary">3. UI-требования</h3>
         <div className="space-y-2 md:space-y-3">
-          {requirements.ui.map((req, index) => (
-            <p 
-              key={index} 
-              className="text-card-foreground leading-relaxed cursor-text text-sm md:text-base"
-              onMouseUp={handleTextSelection}
-            >
-              {req}
-            </p>
-          ))}
+          {requirements.ui.map((req, index) => renderRequirement(req, index))}
         </div>
       </div>
 
       {/* Floating Button */}
       {showButton && (
         <div
-          className="absolute z-50 pointer-events-none"
+          className="fixed z-50 pointer-events-none"
           style={{
-            left: Math.max(10, buttonPosition.x - 75),
+            left: Math.max(10, buttonPosition.x - 100),
             top: buttonPosition.y
           }}
         >
           <Button
-            onClick={handleMarkError}
+            onClick={handleMarkAsError}
             className="pointer-events-auto bg-destructive hover:bg-destructive/90 text-destructive-foreground shadow-lg text-xs md:text-sm"
             size="sm"
           >
-            Отметить ошибку
+            Отметить как ошибку
           </Button>
         </div>
       )}
