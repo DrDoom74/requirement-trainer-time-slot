@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import RequirementsSection from '../components/RequirementsSection';
 import ImplementationSection from '../components/ImplementationSection';
@@ -27,13 +28,13 @@ const VALID_ERRORS = [
   {
     id: '2.3',
     text: 'Система должна позволять бронировать любое время в течение дня.',
-    explanation: 'Не указан диапазон часов — 00:00-23:59?',
-    attribute: 'Однозначность / полнота'
+    explanation: 'Противоречит требованию 2.2',
+    attribute: 'Непротиворечивость'
   },
   {
     id: '2.5',
     text: 'Имя, введённое пользователем, должно сохраняться.',
-    explanation: 'Не ясно, где и зачем хранится имя',
+    explanation: 'Не ясно, где должно хранится имя',
     attribute: 'Ясность / реализуемость'
   },
   {
@@ -44,8 +45,8 @@ const VALID_ERRORS = [
   },
   {
     id: '3.3',
-    text: 'Цвет кнопки «Забронировать» должен соответствовать фирменному стилю.',
-    explanation: 'Стиль не описан, цвет непроверяем',
+    text: 'Цвет кнопки «Забронировать» должен соответствовать общепринятому стилю.',
+    explanation: 'Стиль не описан, цвет не указан',
     attribute: 'Однозначность / проверяемость'
   },
   {
@@ -97,25 +98,28 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-primary text-primary-foreground p-4 shadow-lg">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-6">
-            <h1 className="text-xl font-bold">Тренажёр по анализу требований</h1>
-            <div className="text-lg font-semibold">
+      <header className="bg-primary text-primary-foreground p-3 md:p-4 shadow-lg">
+        <div className="container mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-6">
+            <h1 className="text-lg md:text-xl font-bold">Тренажёр по анализу требований</h1>
+            <div className="text-base md:text-lg font-semibold">
               Найдено ошибок: {foundErrors.length} / 7
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 md:gap-3 w-full sm:w-auto">
             <Button 
               variant="secondary" 
               onClick={resetProgress}
-              className="bg-secondary hover:bg-secondary/80"
+              className="bg-secondary hover:bg-secondary/80 text-xs md:text-sm flex-1 sm:flex-none"
+              size="sm"
             >
               Сбросить прогресс
             </Button>
             <Button 
               variant="secondary"
               asChild
+              className="text-xs md:text-sm flex-1 sm:flex-none"
+              size="sm"
             >
               <a href="https://boosty.to/aklimenko" target="_blank" rel="noopener noreferrer">
                 Ответы
@@ -125,21 +129,21 @@ const Index = () => {
         </div>
       </header>
 
-      <main className="container mx-auto p-6 space-y-8">
+      <main className="container mx-auto p-3 md:p-6 space-y-6 md:space-y-8">
         {/* Task Description */}
-        <section className="bg-card p-6 rounded-lg shadow-sm border">
-          <h2 className="text-2xl font-bold mb-4 text-primary">Задание</h2>
-          <p className="text-muted-foreground leading-relaxed">
+        <section className="bg-card p-4 md:p-6 rounded-lg shadow-sm border">
+          <h2 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-primary">Задание</h2>
+          <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
             Вы — начинающий тестировщик. Перед вами — описание требований к фиче "Выбор времени встречи".
             Некоторые формулировки содержат ошибки: они могут быть <strong>противоречивыми, неполными, двусмысленными или нереализуемыми</strong>.
             Ваша задача — найти и <strong>отметить эти ошибки</strong>, выделив соответствующий текст и нажав кнопку <strong>"Отметить ошибку"</strong>.
           </p>
-          <p className="text-muted-foreground leading-relaxed mt-2">
+          <p className="text-muted-foreground leading-relaxed mt-2 text-sm md:text-base">
             Используйте реализацию фичи ниже, чтобы сравнить требования с поведением системы и найти несоответствия.
           </p>
         </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
           {/* Requirements Section */}
           <div className="lg:col-span-2">
             <RequirementsSection onErrorFound={handleErrorFound} />
@@ -156,15 +160,15 @@ const Index = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-muted mt-12 p-6 text-center">
-        <p className="text-muted-foreground">
+      <footer className="bg-muted mt-8 md:mt-12 p-4 md:p-6 text-center">
+        <p className="text-muted-foreground text-sm md:text-base">
           <strong>Школа Алексея Клименко по тестированию ПО</strong>
         </p>
         <a 
           href="https://t.me/QA_AKlimenko" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="text-primary hover:text-primary/80 underline"
+          className="text-primary hover:text-primary/80 underline text-sm md:text-base"
         >
           Telegram-канал
         </a>
