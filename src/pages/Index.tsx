@@ -60,29 +60,8 @@ const VALID_ERRORS = [
 const Index = () => {
   const [foundErrors, setFoundErrors] = useState<FoundError[]>([]);
 
-  const handleErrorFound = useCallback((selectedText: string) => {
-    const trimmedText = selectedText.trim();
-    
-    // Ищем точное совпадение основного текста ошибки
-    let matchedError = VALID_ERRORS.find(error => 
-      error.text === trimmedText
-    );
-    
-    // Если не найдено точное совпадение, проверяем содержится ли основной текст в выделении
-    if (!matchedError) {
-      matchedError = VALID_ERRORS.find(error => 
-        trimmedText.includes(error.text)
-      );
-    }
-    
-    // Проверяем выделение по номеру пункта (например, "1.3", "2.6")
-    if (!matchedError) {
-      const numberMatch = trimmedText.match(/^(\d\.\d)/);
-      if (numberMatch) {
-        const number = numberMatch[1];
-        matchedError = VALID_ERRORS.find(error => error.id === number);
-      }
-    }
+  const handleErrorFound = useCallback((requirementId: string) => {
+    const matchedError = VALID_ERRORS.find(error => error.id === requirementId);
     
     if (matchedError && !foundErrors.find(err => err.id === matchedError.id)) {
       setFoundErrors(prev => [...prev, matchedError]);
@@ -136,7 +115,9 @@ const Index = () => {
           <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
             Вы — начинающий тестировщик. Перед вами — описание требований к фиче "Выбор времени встречи".
             Некоторые формулировки содержат ошибки: они могут быть <strong>противоречивыми, неполными, двусмысленными или нереализуемыми</strong>.
-            Ваша задача — найти и <strong>отметить эти ошибки</strong>, выделив соответствующий текст и нажав кнопку <strong>"Отметить ошибку"</strong>.
+          </p>
+          <p className="text-muted-foreground leading-relaxed mt-2 text-sm md:text-base">
+            🟡 <strong>Наведите курсор на номер требования. Если считаете, что оно составлено с ошибкой, нажмите «Отметить как ошибку».</strong>
           </p>
           <p className="text-muted-foreground leading-relaxed mt-2 text-sm md:text-base">
             Используйте реализацию фичи ниже, чтобы сравнить требования с поведением системы и найти несоответствия.
