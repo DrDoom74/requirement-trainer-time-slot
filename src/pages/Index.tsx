@@ -59,6 +59,7 @@ const VALID_ERRORS = [
 
 const Index = () => {
   const [foundErrors, setFoundErrors] = useState<FoundError[]>([]);
+  const [resetKey, setResetKey] = useState(0);
 
   const handleErrorFound = useCallback((requirementId: string) => {
     const matchedError = VALID_ERRORS.find(error => error.id === requirementId);
@@ -72,6 +73,7 @@ const Index = () => {
 
   const resetProgress = () => {
     setFoundErrors([]);
+    setResetKey(prev => prev + 1);
   };
 
   return (
@@ -127,7 +129,7 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8">
           {/* Requirements Section */}
           <div className="lg:col-span-2">
-            <RequirementsSection onErrorFound={handleErrorFound} />
+            <RequirementsSection onErrorFound={handleErrorFound} resetKey={resetKey} />
           </div>
 
           {/* Found Errors Panel */}

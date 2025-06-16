@@ -1,15 +1,23 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 
 interface RequirementsSectionProps {
   onErrorFound: (requirementId: string) => boolean;
+  resetKey: number;
 }
 
-const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound }) => {
+const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound, resetKey }) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [showButton, setShowButton] = useState<string | null>(null);
   const [markedRequirements, setMarkedRequirements] = useState<Set<string>>(new Set());
+
+  // Reset state when resetKey changes
+  useEffect(() => {
+    setMarkedRequirements(new Set());
+    setShowButton(null);
+    setHoveredId(null);
+  }, [resetKey]);
 
   const requirements = {
     business: [
@@ -93,13 +101,14 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound 
   };
 
   const handleNumberClick = (requirementId: string) => {
-    if (markedRequirements.has(requirementId)) return;
     setShowButton(showButton === requirementId ? null : requirementId);
   };
 
   const handleMarkError = (requirementId: string) => {
     const success = onErrorFound(requirementId);
-    setMarkedRequirements(prev => new Set([...prev, requirementId]));
+    if (success) {
+      setMarkedRequirements(prev => new Set([...prev, requirementId]));
+    }
     setShowButton(null);
   };
 
