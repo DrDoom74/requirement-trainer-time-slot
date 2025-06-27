@@ -1,5 +1,4 @@
-
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import RequirementsSection from '../components/RequirementsSection';
 import ImplementationSection from '../components/ImplementationSection';
 import FoundErrorsPanel from '../components/FoundErrorsPanel';
@@ -36,13 +35,13 @@ const VALID_ERRORS = [
     id: '2.7',
     text: 'Имя, введённое пользователем, должно сохраняться.',
     explanation: 'Неясно, где и зачем сохраняется имя.',
-    attribute: 'Ясность, реализуемость'
+    attribute: 'Полнота, Однозначность'
   },
   {
     id: '2.8',
     text: 'Пользователь не может изменить встречу после бронирования.',
     explanation: 'Не обосновано и противоречит цели, может быть неудобно для пользователя.',
-    attribute: 'Непротиворечивость'
+    attribute: 'Непротиворечивость, корректность'
   },
   {
     id: '3.4',
@@ -58,9 +57,29 @@ const VALID_ERRORS = [
   }
 ];
 
+const STORAGE_KEY = 'requirements-trainer-found-errors';
+
 const Index = () => {
   const [foundErrors, setFoundErrors] = useState<FoundError[]>([]);
   const [resetKey, setResetKey] = useState(0);
+
+  // Load found errors from localStorage on component mount
+  useEffect(() => {
+    const savedErrors = localStorage.getItem(STORAGE_KEY);
+    if (savedErrors) {
+      try {
+        const parsedErrors = JSON.parse(savedErrors);
+        setFoundErrors(parsedErrors);
+      } catch (error) {
+        console.error('Error parsing saved errors:', error);
+      }
+    }
+  }, []);
+
+  // Save found errors to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(foundErrors));
+  }, [foundErrors]);
 
   const handleErrorFound = useCallback((requirementId: string) => {
     const matchedError = VALID_ERRORS.find(error => error.id === requirementId);
@@ -75,6 +94,7 @@ const Index = () => {
   const resetProgress = () => {
     setFoundErrors([]);
     setResetKey(prev => prev + 1);
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   return (
