@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -28,31 +27,37 @@ const ImplementationSection: React.FC = () => {
   const [showDuplicateError, setShowDuplicateError] = useState(false);
   const [bookingMessage, setBookingMessage] = useState('');
 
-  // Генерируем слоты на 5 дней вперёд
+  // Генерируем слоты на 5 рабочих дней
   const generateSlots = (): BookingSlot[] => {
     const slots: BookingSlot[] = [];
     const today = new Date();
+    let daysAdded = 0;
+    let dayOffset = 0;
     
-    for (let dayOffset = 0; dayOffset < 5; dayOffset++) {
+    while (daysAdded < 5) {
       const date = new Date(today);
       date.setDate(today.getDate() + dayOffset);
       
       // Пропускаем выходные
-      if (date.getDay() === 0 || date.getDay() === 6) continue;
-      
-      const dateStr = date.toLocaleDateString('ru-RU');
-      
-      // Генерируем временные слоты 10:00-16:00
-      const times = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
-      
-      times.forEach(time => {
-        const slotKey = `${dateStr}-${time}`;
-        slots.push({
-          date: dateStr,
-          time: time,
-          available: !bookedSlots.has(slotKey)
+      if (date.getDay() !== 0 && date.getDay() !== 6) {
+        const dateStr = date.toLocaleDateString('ru-RU');
+        
+        // Генерируем временные слоты 10:00-16:00
+        const times = ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'];
+        
+        times.forEach(time => {
+          const slotKey = `${dateStr}-${time}`;
+          slots.push({
+            date: dateStr,
+            time: time,
+            available: !bookedSlots.has(slotKey)
+          });
         });
-      });
+        
+        daysAdded++;
+      }
+      
+      dayOffset++;
     }
     
     return slots;
