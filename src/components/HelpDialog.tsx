@@ -61,29 +61,30 @@ const HelpDialog = () => {
           </div>
 
           <div className="border-t pt-4 space-y-2">
-            <p className="text-xs text-muted-foreground">
-              <strong>Источник:</strong> Святослав Куликов. "Тестирование программного обеспечения. Базовый курс. (3-е издание)"
-            </p>
-            <p className="text-xs text-muted-foreground">
-              <a 
-                href="https://svyatoslav.biz/software_testing_book/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                https://svyatoslav.biz/software_testing_book/
-              </a>
-            </p>
-            <p className="text-xs text-muted-foreground">
-              <a 
-                href="https://qat.com/guide-user-requirements/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
-                https://qat.com/guide-user-requirements/
-              </a>
-            </p>
+            <h4 className="font-semibold text-base mb-2">Источники:</h4>
+            <ul className="space-y-1 text-xs text-muted-foreground">
+              <li>
+                • Святослав Куликов. "Тестирование программного обеспечения. Базовый курс. (3-е издание)" - {' '}
+                <a 
+                  href="https://svyatoslav.biz/software_testing_book/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  https://svyatoslav.biz/software_testing_book/
+                </a>
+              </li>
+              <li>
+                • <a 
+                  href="https://qat.com/guide-user-requirements/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  https://qat.com/guide-user-requirements/
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
       </DialogContent>
