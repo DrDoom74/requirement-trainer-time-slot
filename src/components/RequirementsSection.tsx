@@ -45,7 +45,7 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound,
     functional: [
       {
         id: '2.1',
-        text: 'Календарь должен отображать ближайшие 5 дней, начиная с текущей даты.'
+        text: 'Календарь должен отображать ближайшие 5 рабочих дней, начиная с текущей даты.'
       },
       {
         id: '2.2',
