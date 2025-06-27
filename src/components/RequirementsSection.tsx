@@ -178,7 +178,7 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound,
       <h2 className="text-xl md:text-2xl font-bold text-primary">Требования</h2>
       
       {/* Business Requirements */}
-      <div className="bg-card p-4 md:p-6 rounded-lg shadow-sm border">
+      <div className="bg-card p-4 md:p-6 rounded-lg shadow-sm border" id="requirements-section">
         <h3 className="text-lg md:text-xl font-semibold mb-3 md:mb-4 text-primary">📘 Бизнес-требования</h3>
         <div className="space-y-3 md:space-y-4">
           {requirements.business.map(renderRequirement)}
