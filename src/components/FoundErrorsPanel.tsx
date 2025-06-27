@@ -14,7 +14,14 @@ interface FoundErrorsPanelProps {
 
 const FoundErrorsPanel: React.FC<FoundErrorsPanelProps> = ({ foundErrors }) => {
   return (
-    <div className="bg-card p-6 rounded-lg shadow-sm border sticky top-6 max-h-[calc(100vh-3rem)] overflow-y-auto" style={{ top: 'max(1.5rem, calc(100vh - 100%))' }}>
+    <div 
+      className="bg-card p-6 rounded-lg shadow-sm border max-h-[calc(100vh-3rem)] overflow-y-auto"
+      style={{ 
+        position: 'sticky',
+        top: 'max(1.5rem, calc(0px))',
+        alignSelf: 'flex-start'
+      }}
+    >
       <h3 className="text-xl font-semibold mb-4 text-primary">Найденные ошибки</h3>
       
       {foundErrors.length === 0 ? (
