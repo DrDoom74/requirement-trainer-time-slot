@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 
@@ -73,7 +72,7 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound,
       },
       {
         id: '2.8',
-        text: 'Пользователь не может изменить встречу после бронирования.'
+        text: 'Пользователь не может изменить время встречи после бронирования.'
       },
       {
         id: '2.9',
@@ -111,7 +110,7 @@ const RequirementsSection: React.FC<RequirementsSectionProps> = ({ onErrorFound,
       },
       {
         id: '3.7',
-        text: 'При попытке второго бронирования в течение одного дня на ранее использованный email поверх формы должно выводиться окно с сообщением об ошибке: «Вы уже записаны на сегодня».'
+        text: 'При попытке второго бронирования в течение одного дня на ранее использованный email поверх формы должно выводиться окно с сообщением об ошибке, содержащим текст из требования 2.10.'
       },
       {
         id: '3.8',
