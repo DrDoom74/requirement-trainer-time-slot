@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import RequirementsSection from '../components/RequirementsSection';
 import ImplementationSection from '../components/ImplementationSection';
@@ -108,7 +109,7 @@ const Index = () => {
               Найдено ошибок: {foundErrors.length} / 7
             </div>
           </div>
-          <div className="flex gap-2 md:gap-3 w-full sm:w-auto">
+          <div className="flex gap-2 md:gap-3 w-full sm:w-auto justify-center sm:justify-end">
             <HelpDialog />
             <Button 
               variant="secondary" 
